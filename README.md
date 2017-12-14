@@ -75,7 +75,7 @@ Where Rebex stands out is the escapes for matching things longer than a characte
         im_a_ruby_script.rb
         i_have_.rb_in_my_name
     the rebex "\L.rb" will match "im_a_ruby_script.rb" and "i_have_.rb"
-    it simply matches from the [start of the line] to [as many non-newlinw characters as it can]
+    it simply matches from [start of the line] to [as many non-newline characters as possible]
     \R works the similarly but for the end
     the rebex ".rb\R" would only match ".rb" (from "im_a_ruby_script.rb") and ".rb_in_my_name"
 ```
