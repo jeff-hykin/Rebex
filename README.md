@@ -43,7 +43,7 @@ The rebex would have to be `"i have escaped characters \\ \[\] \{\}"`
 ## Characters
 Rebex has a lot of escapes for matching special characters:
 ```
-    \s # a space chatacter
+    \s # a space character
     \w # a whitespace character, ex: "\t" or "\n"
     \l # letter ex: "A" or "a" or "b"
     \v # character in a variable name (letters, underscores, numbers) 
