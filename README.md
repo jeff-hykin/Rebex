@@ -32,9 +32,14 @@ The only special characters are:<br>
     *
     +
     :
+    |
 ```
 This means in your string you can use periods, dollar signs, parentheses, etc and they'll actually match/find those characters.
+To match `i have escaped characters \ [] {}`
+The rebex would have to be `"i have escaped characters \\ \[\] \{\}"`
 
+
+## Characters
 Rebex has a lot of escapes for matching special characters:
 ```
     \s # a space chatacter
@@ -47,6 +52,7 @@ Rebex has a lot of escapes for matching special characters:
     \y # vertical tab 
 ```
 
+## Special escapes
 Where Rebex stands out is the escapes for matching things longer than a character:
 ```
     \# # Number              ex: "3.1415" or "10000" or ".05"
@@ -60,6 +66,7 @@ Where Rebex stands out is the escapes for matching things longer than a characte
         \f filenames
         \F folder names
         \P path/directories
+        etc
 
     # explaination for \L and \R
     if you have a string with mutiple lines like:
@@ -72,22 +79,71 @@ Where Rebex stands out is the escapes for matching things longer than a characte
     the rebex ".rb\R" would only match ".rb" (from "im_a_ruby_script.rb") and ".rb_in_my_name"
 ```
 
+## repetition
 Rebex uses + * and {} for repetition just like normal regular expressions
 ```
 hello world
-my is jeffffff
+my name is jeff
+my friends call me jeffffff
 i know someone named jennifer
 ```
 On the above string,
-The rebex `"jef+"` would match "jeffffff"<br>
-The rebex `"jef*"` would match "jeffffff" but it would also match the "je" from "jennifer"<br>
-The rebex `"jef{5}"` would match "jefffff" (misses the last f)<br>
-The rebex `"jef{0,2}"` would match "jeff" (only 2 f's) but would also match "je" from "jennifer"<br>
-The rebex `"je\[\l+]"` (`\l` means any letter) would match "jeffffff" and "jennifer"<br>
-The rebex `"je\[\l+]f"` would match "jeffffff" and "jennif" (because both are: je \[some letters] f)<br>
-The rebex `"je\[\l+{Min}]f"` would match "jeff" and "jennif" (because its: je \[as few letters as possible] f)<br>
+The rebex `"jef+"` would match "jeff" and "jeffffff"<br>
+The rebex `"jef*"` would match "jeff", "jeffffff" but also "je" from "jennifer"<br>
+The rebex `"jef{3}"` would match "jefff" (three f's)<br>
+The rebex `"jef{0,3}"` would match "jeff" (2 f's work), "jefff" (3 f's) but also "je" from "jennifer" (0 f's)<br>
+The rebex `"je\[\l+]"` (`\l` means any letter) would match "jeff", "jeffffff", and "jennifer"<br>
+The rebex `"je\[\l+]f"` would match "jeff", "jeffffff" and "jennif" (because all are: je \[some letters] f)<br>
+The rebex `"je\[\l+{Min}]f"` would match "jeff", "jeff" (from "jeffffff") and "jennif" 
+(this because its: je \[as few letters as possible] f)<br>
+`{0,}` is the same as * <br>
+`{1,}` is the same as + <br>
+
+## Anchors/Boundaries
+```
+    {S}  # matches the start of the whole string 
+    {E}  # matches end of the whole string
+    {LS} # matches the start of a line
+    {LE} # matches the end of line
+    {b}  # matches a boundary 
+           (either [whitespace][HERE][non_whitespace] or [non_whitespace][HERE][whitespace])
+    {c}  # matches a contiuation 
+           (either [whitespace][HERE][more_whitespace] or [non_whitespace][HERE][more_non_whitespace])
+    more to come!
+        {l} letter boundaries
+        {#} number boundaries
+        {Case} case (upper vs lower case) boundaries
+        etc
+```
+
+## Groups and Group Tools
+```
+    for the string:
+        hello world
+        123 123 123 321
+        my name is jeff
+        my friends call me jeffffff
+        i know someone named jennifer
+
+    [123]                   # matches "123", "123", and "123" but not "321"
+    [123 ]+                 # matches "123 123 123 " (all together)
+    123[this is a comment:] # matches the "123", "123", and "123" and ignores the comment 
+    my [name|friends]       # matches both "my name" and "my friends"
+    [<<:my name is ]jeff    # only matches "jeff" when "my name is " comes before it (called a lookbehind)
+    jeff[x>:f]              # only matches "jeff" when there isn't an f after it (called a negative lookahead)
+    [Any:0-9]+              # matches "123", "123", and "123"
+    [xAny:0-9]+             # matches every thing thats not 0-9, "hello world\n" and "my name... etc
+    [A:0-9]+                # same as [Any:] just less characters
+    [xA:0-9]+               # same as [xAny:] just less characters
+    my name is [a_name:\W]  # matches "my name is jeff" and puts "jeff" in a group called "a_name" 
+                            # for small things, named groups dont do much, but for long rebex patterns
+                            # groups like "hour" "minute" "second" allow you to pull out specific peices
+                            # and that can be really helpful
+    more groups on the way!
+        conditional groups
+        atomic groups
+        recursive groups
+        etc
+```
 
 
-
-# Notes
-This is a feature inside of the Resh repo, but it had enough merit also have its own repo.
