@@ -134,8 +134,8 @@ The rebex `"je[\l+{Min}]f"` would match "jeff", "jeff" (from "jeffffff") and "je
     jeff[x>:f]              # only matches "jeff" when there isn't an f after it (called a negative lookahead)
     [Any:0-9]+              # matches "123", "123", and "123"
     [xAny:0-9]+             # matches every thing thats not 0-9, "hello world\n" and "my name... etc
-    [A:0-9]+                # same as [Any:] just less characters
-    [xA:0-9]+               # same as [xAny:] just less characters
+    [A:0-9]+                # same as [Any:0-9]+
+    [xA:0-9]+               # same as [xAny:0-9]+
     my name is [a_name:\W]  # matches "my name is jeff" and puts "jeff" in a group called "a_name" 
                             # for small things, named groups dont do much, but for long rebex patterns
                             # groups like "hour" "minute" "second" allow you to pull out specific peices
