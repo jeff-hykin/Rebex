@@ -1,5 +1,6 @@
 # Rebex
 A more user friendly version of regular expressions, implemented in Ruby.
+(This is a feature inside of the Resh repo, but it had enough merit also have its own repo.)
 
 # Current State
 The expressions themselves and the stability is at version 0.9.
