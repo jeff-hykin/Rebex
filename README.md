@@ -80,7 +80,7 @@ Where Rebex stands out is the escapes for matching things longer than a characte
     the rebex ".rb\R" would only match ".rb" (from "im_a_ruby_script.rb") and ".rb_in_my_name"
 ```
 
-## repetition
+## Repetition
 Rebex uses + * and {} for repetition just like normal regular expressions
 ```
 hello world
