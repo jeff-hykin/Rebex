@@ -94,9 +94,8 @@ The rebex `"jef*"` would match "jeff", "jeffffff" but also "je" from "jennifer"<
 The rebex `"jef{3}"` would match "jefff" (three f's)<br>
 The rebex `"jef{0,3}"` would match "jeff" (2 f's work), "jefff" (3 f's) but also "je" from "jennifer" (0 f's)<br>
 The rebex `"je[\l+]"` (`\l` means any letter) would match "jeff", "jeffffff", and "jennifer"<br>
-The rebex `"je[\l+]f"` would match "jeff", "jeffffff" and "jennif" <br>
-(because all are: je \[some letters] f)<br>
-The rebex `"je[\l+{Min}]f"` would match "jeff", "jeff" (from "jeffffff") and "jennif" 
+The rebex `"je[\l+]f"` would match "jeff", "jeffffff" and "jennif" (because all are: je \[some letters] f)<br>
+The rebex `"je[\l+{Min}]f"` would match "jeff", "jeff" (from "jeffffff") and "jennif" <br>
 (this because its: je \[as few letters as possible] f)<br>
 `{0,}` is the same as * <br>
 `{1,}` is the same as + <br>
