@@ -49,7 +49,7 @@ Rebex has a lot of escapes for matching special characters:
     \v # character in a variable name (letters, underscores, numbers) 
     \x # a symbol (ex: #$&%*) 
     \a # any character thats not a newline
-    \A # absolutely any and every character 
+    \A # absolutely any character 
     \y # vertical tab 
 ```
 
