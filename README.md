@@ -84,7 +84,7 @@ The rebex "jef*" would match "jeffffff" but it would also match the "je" from "j
 The rebex "jef{5}" would match "jefffff" (misses the last f)<br>
 The rebex "jef{0,2}" would match "jeff" (only 2 f's) but would also match "je" from "jennifer"<br>
 The rebex "je\l+" (\l means any letter) would match "jeffffff" and "jennifer"<br>
-The rebex "je\l+f" would match "jeffffff" and "jennif" (je \[some letters] f)
+The rebex "je\l+f" would match "jeffffff" and "jennif" (because both are je \[some letters] f)
 
 # Notes
 This is a feature inside of the Resh repo, but it had enough merit also have its own repo.
