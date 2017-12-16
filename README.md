@@ -11,18 +11,27 @@ The 2.0 version should be a string find/replace/parse toolkit for Ruby.<br>
 
 
 # How to use
-If you include this code at the top of a ruby script<br>
-(Better integration coming soon)<br>
-Then you cause use the rebexToRegex function to generate Ruby regular expressions.
+1. Put the rebex.rb file in the same folder as your ruby script.
+2. Include `require File.dirname(__FILE__)+'/rebex.rb'` at the top of your script.
+3. Wherever you would normally write a regular expression, just include a - right before the //
 For example:
 ```
-# include rebex.rb code here
+require File.dirname(__FILE__)+'/rebex.rb'
 a_string = "hello good sir, today is Dec 12, 1972 and it is 8:00 am"
-result = a_string.match(rebexToRegex('hello \a+ today is \D [and it is |]\T'))
-puts result
-puts result['Time']
-puts result['Date']
+puts a_string.match(-/\T/) # will find the time: 8:00 am
 ```
+Some additional functions have also been added to the string class
+(See the demo file for more examples)
+```
+puts "The times also are:"
+# the following finds both 23:00 and 8:00am
+for each_match in "hello it is 23:00, 8:00am".findeach(-/\T/)
+    puts "    the hour is:" + each_match["Hour"]
+    puts "    the minute is:" + each_match["Minute"]
+    puts ""
+end
+```
+
 
 # Syntax
 The only special characters are:<br>
@@ -36,7 +45,7 @@ The only special characters are:<br>
     |
 ```
 This means in your string you can use periods, dollar signs, parentheses, etc and they'll actually match/find those characters.
-To match `i have escaped characters \ [] {}`
+But to match `i have escaped characters \ [] {}`
 The rebex would have to be `"i have escaped characters \\ \[\] \{\}"`
 
 
