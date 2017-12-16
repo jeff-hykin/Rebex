@@ -3,11 +3,11 @@ A more user friendly version of regular expressions, implemented in Ruby.
 (This is a feature inside of the Resh repo, but it had enough merit also have its own repo.)
 
 # Current State
-The expressions themselves and the stability is at version 0.9.
-But integration and code structure are still at the 0.2 level (should change soon).
-The 1.0 vserion should be a refined Ruby function converting rebex into Regex.
-I need to clean up the code and add good error messages before getting to the 1.0 version.
-The 2.0 version should be a string find/replace/parse toolkit for Ruby.
+The expressions themselves and the stability is at version 0.9.<br>
+But integration and code structure are at the 0.3 level (should change soon).<br>
+The 1.0 vserion should be a refined Ruby function converting rebex into Regex.<br>
+I need to clean up the code and add good error messages before getting to the 1.0 version.<br>
+The 2.0 version should be a string find/replace/parse toolkit for Ruby.<br>
 
 
 # How to use
