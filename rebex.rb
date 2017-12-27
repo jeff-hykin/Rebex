@@ -50,11 +50,11 @@
         # FIXME, change all ^ and $ to \A and \z 
         # for reby
             # DONE, create box-only syntax
-            # create the group subsititution syntax (replace *stuff* with [Group1])
             # add a [Literal:] group
             # add a [StartsWith:] group
             # add a [EndsWith:] group
-            # add a [Block:] group
+            # create the group subsititution syntax (replace *stuff* with [Group1])
+            # FIXME, what to do about unicode and hex
             # add specials:
                 # folder name
                 # file name
@@ -152,8 +152,8 @@
 
 
 
-# FIXME, what to do about unicode and hex
-# FIXME, escape all the occurances of unicode and hex and bells (\a) form feeds (\f) etc 
+
+# FIXME, escape all the occurances of unicode and hex and bells (\a) form feeds (\f) etc
 # FIXME, fix all of the ^$ situations with \A and \z
 
 # its putting everthing in a class so that 
@@ -212,7 +212,7 @@ def rebexToRegex(input_)
                 dput  "Backslash start"
                 $indent +=  '    '
             # special escapes
-            result = remaining_string[].match(/^\\[sw#TDlWvVxfFPoeaALRyB:]/)
+            result = remaining_string[].match(/\A\\[sw#TDlWvVxfFPoeaALRyB:]/)
             if result
                 result = result[0]
                 dput "okay I think there is a special escape:" + result
@@ -283,14 +283,24 @@ def rebexToRegex(input_)
                         regex_string += '[\s\S]'
                     when '\L' # the left side of a line
                         # FIXME, this needs a custom non-greedy version
-                        regex_string += '(?:(?:\n|^).*)'
+                        regex_string += '(?:(?:\n|\A).*)'
                     when '\R' # the right side of a line
                         # FIXME, this needs a custom non-greedy version 
-                        regex_string += '(?:.*(?=\n|$))'
+                        regex_string += '(?:.*$)'
                     when '\y' # vertical tab 
                         regex_string += '\v'
                     when '\B' # block of code
-                        regex_string += '(?:(?<=\n|^)(?<OriginalIndent>(?: |\t)*)(?<Title>.+)\n(?<Block>(?:(?<Indent>\k<OriginalIndent>(?: |\t)+)(?:.+)(?:\n|$)|[ \t]*\n)+))'
+                        # original_indent = /(?<OriginalIndent>(?: |\t)*)/
+                        # title_          = /(?<Title>.+)/
+                        # first_line      = /^#{original_indent}#{title_}/
+                        # enuf_indent     = /(?<Indent>\k<OriginalIndent>(?: |\t)+)/
+                        # content_line    = /\n#{enuf_indent}(?:.+)$/
+                        # blank_line      = /\n[ \t]*$/
+                        # any_line        = /(?:#{content_line}|#{blank_line})/
+                        # block_          = /(?<Block>(?:#{any_line})*#{content_line})/
+                        # final_pattern   = /#{first_line}#{block_}/
+                        regex_string += '^(?<OriginalIndent>(?: |\t)*)(?<Title>.+)(?<Block>(?:(?:\n(?<Indent>\k<OriginalIndent>(?: |\t)+)(?:.+)$|\n[ \t]*$))*\n(?<Indent>\k<OriginalIndent>(?: |\t)+)(?:.+)$)'
+
                 end#case
 
                 
@@ -313,7 +323,7 @@ def rebexToRegex(input_)
                     $indent +=  '    '
                     
                 # if its a bound or anchor
-                result = remaining_string[].match(/^\{(b|c|S|E|LS|LE)\}/) # any of {b} , {c}, {e} , etc 
+                result = remaining_string[].match(/\A\{(b|c|S|E|LS|LE)\}/) # any of {b} , {c}, {e} , etc 
                 if result #1
                     dput "found a bound/anchor that needs to be interpreted:"+result[1]
                     # regex_string special
@@ -335,7 +345,7 @@ def rebexToRegex(input_)
                 # TODO if \ then there is probably a user error
                 # TODO, probably should add a warning for including stuff that shouldn't be in the thing 
                 # non-Greedy operator
-                elsif remaining_string[].match(/^\{Min\}/)
+                elsif remaining_string[].match(/\A\{Min\}/)
                     #FIXME, make sure there is a quanitfier before the {Min}
                     dput "i think i found the non-greedy operator"
                     regex_string += '?'
@@ -343,7 +353,7 @@ def rebexToRegex(input_)
                 else#1
 
                 # normal repetition
-                result = remaining_string[].match(/^\{(\d*,\d*|\d+)\}/) # any of {1} , {1,2} , {1,} , {,1}
+                result = remaining_string[].match(/\A\{(\d*,\d*|\d+)\}/) # any of {1} , {1,2} , {1,} , {,1}
                 if  result #2
                     dput "i think i found the repetition {}'s"+result[0]
                     regex_string += result[0]
@@ -380,7 +390,7 @@ def rebexToRegex(input_)
 
             
             # Backreference group (not yet finished)
-            result = remaining_string[].match(/^\[G:[a-z0-9_]+?\]/) # find [G:name_of_group]
+            result = remaining_string[].match(/\A\[G:[a-z0-9_]+?\]/) # find [G:name_of_group]
             if result #1
                 result = result[0]
                 dput "I think i found a backreference:" + result
@@ -391,7 +401,7 @@ def rebexToRegex(input_)
 
 
             # Recursive match (not yet finished)
-            result = remaining_string[].match(/^\[R:[a-z0-9_]*?\]/) # find [R:name_of_group] or [R:] (no group)
+            result = remaining_string[].match(/\A\[R:[a-z0-9_]*?\]/) # find [R:name_of_group] or [R:] (no group)
             if result #2 
                 result = result[0]
                 dput "I think i found a Recursive match:"+result
@@ -403,7 +413,7 @@ def rebexToRegex(input_)
             
             
             # Comment 
-            result = remaining_string[].match(/^\[[^\]]+?((?<!\\)(\\\\)+:|(?<!\\):)\]/) # find [ stuff :]
+            result = remaining_string[].match(/\A\[[^\]]+?((?<!\\)(\\\\)+:|(?<!\\):)\]/) # find [ stuff :]
             if result #3
                 result = result[0]
                 dput "I think i found a comment match:"+result
@@ -415,7 +425,7 @@ def rebexToRegex(input_)
             
             
             # lookahead/behind/neg lookahead/ neg lookbehind
-            result = remaining_string[].match(/^\[(\<\<|\>\>|x\<|x\>|\<x|\>x):/) # find [<<:
+            result = remaining_string[].match(/\A\[(\<\<|\>\>|x\<|x\>|\<x|\>x):/) # find [<<:
             if result #4
                 result = result[0]
                 dput "I think i found the start of a look match:"+result
@@ -436,7 +446,7 @@ def rebexToRegex(input_)
             
             # TODO atomic groups
             # character class / neg character class
-            result = remaining_string[].match(/^\[(A|xA|Any|xAny):/) # find [A: stuff ] or [xA: stuff ]
+            result = remaining_string[].match(/\A\[(A|xA|Any|xAny):/) # find [A: stuff ] or [xA: stuff ]
             if result #4.1
                 dput "i think i found a character class" + result[0]
                 if result[1] == "A" or result[1] == "Any"
@@ -451,7 +461,7 @@ def rebexToRegex(input_)
             # TODO conditional 
 
             # named capture groups
-            result = remaining_string[].match(/^\[([a-z0-9_]+):/) # find [name: ]
+            result = remaining_string[].match(/\A\[([a-z0-9_]+):/) # find [name: ]
             if result #5
                 dput "found a named capture group"
                 capture_group_names << result[1] 
@@ -602,7 +612,7 @@ def rebexToRegex(input_)
                 dput "CharBackslash start"
                 $indent +=  '    '
             # special escapes
-            result = remaining_string[].match(/^\\[swlvxoea]/)
+            result = remaining_string[].match(/\A\\[swlvxoea]/)
             if result
                 result = result[0]
                 dput "okay I think there is a special escape:" + result
@@ -654,7 +664,7 @@ def rebexToRegex(input_)
 
             
             # Backreference group
-            result = remaining_string[].match(/^\[G:[a-z0-9_]+?\]/) # find [G:name_of_group]
+            result = remaining_string[].match(/\A\[G:[a-z0-9_]+?\]/) # find [G:name_of_group]
             if result #1
                 result = result[0]
                 dput "I think i found a backreference:" + result
@@ -665,7 +675,7 @@ def rebexToRegex(input_)
 
 
             # Recursive match
-            result = remaining_string[].match(/^\[R:[a-z0-9_]*?\]/) # find [R:name_of_group] or [R:] (no group)
+            result = remaining_string[].match(/\A\[R:[a-z0-9_]*?\]/) # find [R:name_of_group] or [R:] (no group)
             if result #2 
                 result = result[0]
                 dput "I think i found a Recursive match:"+result
@@ -676,7 +686,7 @@ def rebexToRegex(input_)
             
             
             # Comment 
-            result = remaining_string[].match(/^\[(?:Comment:|)[^\]]+?((?<!\\)(\\\\)+:|(?<!\\):)\]/) # find [ stuff :]
+            result = remaining_string[].match(/\A\[(?:Comment:|)[^\]]+?((?<!\\)(\\\\)+:|(?<!\\):)\]/) # find [ stuff :]
             if result #3
                 result = result[0]
                 dput "I think i found a comment match:"+result
@@ -686,7 +696,7 @@ def rebexToRegex(input_)
             
             
             # lookahead/behind/neg lookahead/ neg lookbehind
-            result = remaining_string[].match(/^\[(\<\<|\>\>|x\<|x\>|\<x|\>x):/) # find [<<:
+            result = remaining_string[].match(/\A\[(\<\<|\>\>|x\<|x\>|\<x|\>x):/) # find [<<:
             if result #4
                 result = result[0]
                 dput "I think i found the start of a look match:"+result
@@ -707,7 +717,7 @@ def rebexToRegex(input_)
             
             # TODO atomic groups
             # character class / neg character class
-            result = remaining_string[].match(/^\[(A|xA|Any|xAny):/) # find [A: stuff ] or [xA: stuff ]
+            result = remaining_string[].match(/\A\[(A|xA|Any|xAny):/) # find [A: stuff ] or [xA: stuff ]
             if result #4.1
                 dput "i think i found a character class" + result[0]
                 if result[1] == "A" or result[1] == "Any"
@@ -722,7 +732,7 @@ def rebexToRegex(input_)
             # TODO conditional 
 
             # named capture groups
-            result = remaining_string[].match(/^\[([a-z0-9_]+):/) # find [name: ]
+            result = remaining_string[].match(/\A\[([a-z0-9_]+):/) # find [name: ]
             if result #5
                 dput "found a named capture group"
                 capture_group_names << result[1] 
