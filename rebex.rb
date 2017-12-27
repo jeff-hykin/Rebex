@@ -268,19 +268,19 @@ def rebexToRegex(input_)
                         regex_string += '[^\w\s]'
                     when '\f' # a file name
                         #FIXME, add this later
-                        regex_string += '\f'
+                        regex_string += '\\\\f'
                     when '\F' # a folder name
                         #FIXME, add this later
-                        regex_string += '\F'
+                        regex_string += '\\\\F'
                     when '\P' # a path/directory name 
                         #FIXME, add this later
-                        regex_string += '\P'
+                        regex_string += '\\\\P'
                     when '\o' # other
                         #FIXME, add this later
-                        regex_string += '\o'
+                        regex_string += '\\\\o'
                     when '\e' #emoji 
                         #FIXME, add this later
-                        regex_string += '\e'
+                        regex_string += '\\\\e'
                     when '\a' # any 
                         regex_string += '.'
                     when '\A' # all 
@@ -327,13 +327,13 @@ def rebexToRegex(input_)
                     when "c"
                         regex_string += '\\B'
                     when "S"
-                        regex_string += '^'
+                        regex_string += '\A'
                     when "E"
-                        regex_string += '$'
+                        regex_string += '\z'
                     when "LS"
-                        regex_string += '(?:(?<=\\n)|^)'
+                        regex_string += '^'
                     when "LE"
-                        regex_string += '(?:(?=\\n)|$)'
+                        regex_string += '$'
                     end#case
                     char_reader_index += result[0].length
                 # TODO if \ then there is probably a user error
