@@ -1,3 +1,14 @@
+#
+# helper tools 
+#
+    # debugging helper 
+    $Debugging = false
+    $indent = ""
+    def dput(string_input)
+        if $Debugging
+            puts $indent + string_input
+        end
+    end 
 
 
 
