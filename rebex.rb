@@ -532,7 +532,7 @@ def rebexToRegex(input_)
                 $indent +=  '    '
             
             while char_reader_index < rebex_string_length 
-                result = next_char[].match(/[\.\/\^\$\?\(\)]/)            
+                result = next_char[] =~ regex_extra_escapes_pat
                 if result # any of ./^$?
                     result = result[0]
                     dput "found a char that needs to be escaped:"+result[0]
