@@ -192,10 +192,6 @@ def rebexToRegex(input_)
             rebex_string[char_reader_index]
         end#proc
 
-        previous_char = Proc.new do
-            rebex_string[char_reader_index-1]
-        end#proc
-
         remaining_string = Proc.new do
             rebex_string[char_reader_index...rebex_string_length]
         end#proc
@@ -532,17 +528,15 @@ def rebexToRegex(input_)
                 $indent +=  '    '
             
             while char_reader_index < rebex_string_length 
-                result = next_char[] =~ regex_extra_escapes_pat
-                if result # any of ./^$?
-                    result = result[0]
-                    dput "found a char that needs to be escaped:"+result[0]
+                if next_char[] =~ regex_extra_escapes_pat # any of ./^$?()
+                    dput "found a char that needs to be escaped:"+Regexp.last_match[0]
                     # regex_string special
-                    regex_string += '\\'+result
+                    regex_string += '\\'+Regexp.last_match[0]
                     char_reader_index += 1
                 # if \ then startBackslashContext[]
                 elsif next_char[].match(/\\/)
                     startBackslashContext[]
-                # if [ then startBracketContext[] (again)
+                # if [ then startBracketContext[] (again/recursion)
                 elsif next_char[].match(/\[/)
                     startBracketContext[]
                 # if { then startCurlyBracketContext[]
@@ -604,7 +598,7 @@ def rebexToRegex(input_)
         end#proc
 
         startBackslashCharacterClassContext = Proc.new do
-                # start of function 
+            # start of function 
                 dput "CharBackslash start"
                 $indent +=  '    '
             # special escapes
