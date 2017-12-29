@@ -67,10 +67,10 @@
                 # add a warning for non-matching amount of []'s or {}'s
                 # add warning for making a group with upper case letters
                 # add a warning for variable-length lookbehinds
-        # add named inserts ( [*number*] [*word*] [*block*])
-        # make sure the \k<> doesnt accidently appear unescaped
         # clean up the date \D regex
         # add the custom non-greedy forms of special escapes 
+        # add named inserts ( [*number*] [*word*] [*block*])
+        # make sure the \k<> doesnt accidently appear unescaped
         # add the 'Unescaped' regex function
         # add warning for referencing a group that doesn't exist
         # make warning checking if there is a quanitfier before the {Min}
