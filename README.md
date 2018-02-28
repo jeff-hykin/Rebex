@@ -15,7 +15,7 @@ For example:
 ```
 require File.dirname(__FILE__)+'/rebex.rb'
 a_string = "hello good sir, today is Dec 12, 1972 and it is 8:00 am"
-puts a_string.match(-/\T/) # will find the time: 8:00 am
+puts a_string.match(-/[\T]/) # will find the time: 8:00 am
 ```
 Some additional functions have also been added to the string class
 (See the demo file for more examples)
