@@ -106,6 +106,7 @@ The rebex `"je[\l+]"` (`\l` means any letter) would match "jeff", "jeffffff", an
 The rebex `"je[\l+]f"` would match "jeff", "jeffffff" and "jennif" (because all are: je \[some letters] f)<br>
 The rebex `"je[\l+{Min}]f"` would match "jeff", "jeff" (from "jeffffff") and "jennif" <br>
 (this because its: je \[as few letters as possible] f)<br>
+`{Min}` is just the minimum number that will still match. This is also known as being non-greedy.
 `{0,}` is the same as * <br>
 `{1,}` is the same as + <br>
 
