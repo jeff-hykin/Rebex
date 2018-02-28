@@ -11,7 +11,6 @@
     end 
 
 
-
 #
 #
 #
@@ -47,7 +46,9 @@
 
     
     # TODO
-        # FIXME, change all ^ and $ to \A and \z 
+        # add case matching options
+        # DONE, change all ^ and $ to \A and \z 
+        # fix because of interpolation #{}, theres no way to do a raw literal #{}
         # for reby
             # DONE, create box-only syntax
             # add a [Literal:] group
@@ -81,9 +82,9 @@
         
         # missing
             # subroutines
-            # atomic groups
             # conditionals 
             # inline modifiers
+            # flags 
         # add ruby replace command with features:
             # when the function gets a dictonary of strings and lambdas 
                 # assume the string is rebex, convert it to ruby regex 
@@ -304,10 +305,16 @@ def rebexToRegex(input_)
                 end#case
 
                 
-            # regular escapes
+            # regex escapes that need to be extra escaped
+            elsif remaining_string[].match(/\A\\[gk'&0-9]/)
+                char_reader_index += 1
+                dput "okay I think I found a regex escape that needs to be escaped again:" + next_char[]
+                regex_string += "\\\\"+next_char[] # dont change anything
+                char_reader_index += 1
+            # regular/meaningless escapes
             else
                 char_reader_index += 1
-                dput "okay I think I found a regular escape:" + next_char[]
+                dput "okay I think I found a regular/meaningless escape:" + next_char[]
                 regex_string += "\\"+next_char[] # dont change anything
                 char_reader_index += 1
                 #end this context 
@@ -383,112 +390,7 @@ def rebexToRegex(input_)
         # bracket context 
         # declare this here so that the Group,Character,and BackslashCharacterClass contexts
         # have a BracketContext to refer to
-        startBracketContext  = Proc.new do
-            # start of function 
-                dput ($indent + "Bracket start")
-                $indent +=  '    '
-
-            
-            # Backreference group (not yet finished)
-            result = remaining_string[].match(/\A\[G:[a-z0-9_]+?\]/) # find [G:name_of_group]
-            if result #1
-                result = result[0]
-                dput "I think i found a backreference:" + result
-                regex_string += "\\k<#{result}>"
-                # end this context at end of match 
-                char_reader_index += result.length
-            else#1
-
-
-            # Recursive match (not yet finished)
-            result = remaining_string[].match(/\A\[R:[a-z0-9_]*?\]/) # find [R:name_of_group] or [R:] (no group)
-            if result #2 
-                result = result[0]
-                dput "I think i found a Recursive match:"+result
-                # FIXME, actually add the code for this
-                # regex_string(correct_code)
-                # end this context at end of match
-                char_reader_index += result.length
-            else#2
-            
-            
-            # Comment 
-            result = remaining_string[].match(/\A\[[^\]]+?((?<!\\)(\\\\)+:|(?<!\\):)\]/) # find [ stuff :]
-            if result #3
-                result = result[0]
-                dput "I think i found a comment match:"+result
-                escaped_comment = result.gsub(/((?<!\\)(\\\\)+\)|(?<!\\)\))/,"\\)")
-                # regex_string nothing
-                char_reader_index += result.length
-                regex_string += "(?#"+escaped_comment+")"
-            else#3
-            
-            
-            # lookahead/behind/neg lookahead/ neg lookbehind
-            result = remaining_string[].match(/\A\[(\<\<|\>\>|x\<|x\>|\<x|\>x):/) # find [<<:
-            if result #4
-                result = result[0]
-                dput "I think i found the start of a look match:"+result
-                dput "i found that at:"+ char_reader_index.to_s
-                case result
-                when "[>>:"
-                    regex_string += '(?='
-                when "[<<:"
-                    regex_string += '(?<='
-                when "[x>:","[>x:"
-                    regex_string += '(?!'
-                when "[x<:","[<x:"
-                    regex_string += '(?<!'
-                end#case 
-                char_reader_index += 4
-                startLookContext[]
-            else#4
-            
-            # TODO atomic groups
-            # character class / neg character class
-            result = remaining_string[].match(/\A\[(A|xA|Any|xAny):/) # find [A: stuff ] or [xA: stuff ]
-            if result #4.1
-                dput "i think i found a character class" + result[0]
-                if result[1] == "A" or result[1] == "Any"
-                    regex_string += "["
-                else 
-                    regex_string += "[^"
-                end
-                char_reader_index += result[0].length
-                startCharacterClassContext[]
-            else#4.1
-
-            # TODO conditional 
-
-            # named capture groups
-            result = remaining_string[].match(/\A\[([a-z0-9_]+):/) # find [name: ]
-            if result #5
-                dput "found a named capture group"
-                capture_group_names << result[1] 
-                regex_string += "(?<"+result[1]+'>'
-                char_reader_index += result[0].length
-                startGroupContext[]
-            else#5
-
-            # non-capture groups (assume everything else is a non-capture group)
-            # FIXME, put a warning here for Capatalized-would-be named capture groups
-            dput "found a non-capture group"
-            regex_string += '(?:'
-            char_reader_index += 1
-            startGroupContext[]
-            end#5 named capture group
-            end#4.1 Character Class
-            end#4 looks
-            end#3 Comment
-            end#2 Recursive
-            end#1 Backreference
-
-
-            
-            #end of function
-                $indent = $indent[4...$indent.length]
-                dput "Bracket end"
-        end#proc
+        startBracketContext  = Proc.new do        end#proc
 
         startLookContext = Proc.new do
             # start of function 
@@ -519,6 +421,14 @@ def rebexToRegex(input_)
                     regex_string += ')'
                     char_reader_index += 1
                     break
+                # convert the ~ into * 
+                elsif next_char[].match(/~/)
+                    regex_string += "*"
+                    char_reader_index += 1
+                # convert the * into (?:.+)
+                elsif next_char[].match(/\*/)
+                    regex_string += "(?:.+)"
+                    char_reader_index += 1
                 # under normal circumstances, regex_string things as-is
                 else
                     dput "finding normal stuff in a lookahead:"+next_char[]
@@ -558,6 +468,14 @@ def rebexToRegex(input_)
                     regex_string += ')'
                     char_reader_index += 1
                     break
+                # convert the ~ into * 
+                elsif next_char[].match(/~/)
+                    regex_string += "*"
+                    char_reader_index += 1
+                # convert the * into (?:.+)
+                elsif next_char[].match(/\*/)
+                    regex_string += "(?:.+)"
+                    char_reader_index += 1
                 # under normal circumstances, regex_string things as-is
                 else
                     dput "finding normal stuff in a capture group:"+next_char[]
@@ -567,6 +485,22 @@ def rebexToRegex(input_)
                 
             end#while
             #end of function
+                $indent = $indent[4...$indent.length]
+                dput "CaptureGroup end"
+        end#proc
+
+        startLiteralContext = Proc.new do
+            # start of function 
+                dput "starting startLiteralContext"
+                $indent +=  '    '
+            
+            
+            result = remaining_string[].match(/\A([\s\S]*?)\]/)
+            if result
+                dput "contents of literal are:#{result[1]}"
+                regex_string += Regexp.escape(result[1]) +")"
+                char_reader_index += result[0].length
+            end
                 $indent = $indent[4...$indent.length]
                 dput "CaptureGroup end"
         end#proc
@@ -661,9 +595,8 @@ def rebexToRegex(input_)
             # start of function 
                 dput ($indent + "Bracket start")
                 $indent +=  '    '
-
             
-            # Backreference group
+            # Backreference group (not yet finished)
             result = remaining_string[].match(/\A\[G:[a-z0-9_]+?\]/) # find [G:name_of_group]
             if result #1
                 result = result[0]
@@ -674,11 +607,12 @@ def rebexToRegex(input_)
             else#1
 
 
-            # Recursive match
+            # Recursive match (not yet finished)
             result = remaining_string[].match(/\A\[R:[a-z0-9_]*?\]/) # find [R:name_of_group] or [R:] (no group)
             if result #2 
                 result = result[0]
                 dput "I think i found a Recursive match:"+result
+                # FIXME, actually add the code for this
                 # regex_string(correct_code)
                 # end this context at end of match
                 char_reader_index += result.length
@@ -686,12 +620,14 @@ def rebexToRegex(input_)
             
             
             # Comment 
-            result = remaining_string[].match(/\A\[(?:Comment:|)[^\]]+?((?<!\\)(\\\\)+:|(?<!\\):)\]/) # find [ stuff :]
+            result = remaining_string[].match(/\A\[[^\]]+?((?<!\\)(\\\\)+:|(?<!\\):)\]/) # find [ stuff :]
             if result #3
                 result = result[0]
                 dput "I think i found a comment match:"+result
+                escaped_comment = result.gsub(/((?<!\\)(\\\\)+\)|(?<!\\)\))/,"\\)")
                 # regex_string nothing
                 char_reader_index += result.length
+                regex_string += "(?#"+escaped_comment+")"
             else#3
             
             
@@ -715,7 +651,6 @@ def rebexToRegex(input_)
                 startLookContext[]
             else#4
             
-            # TODO atomic groups
             # character class / neg character class
             result = remaining_string[].match(/\A\[(A|xA|Any|xAny):/) # find [A: stuff ] or [xA: stuff ]
             if result #4.1
@@ -741,25 +676,39 @@ def rebexToRegex(input_)
                 startGroupContext[]
             else#5
 
+            # Atomic 
+            result = remaining_string[].match(/\A\[(Fixed|Atomic):/) # find [A: stuff ] or [xA: stuff ]
+            if result #6
+                dput "i think i found an atomic group" + result[0]
+                regex_string += "(?>"
+                char_reader_index += result[0].length
+                startGroupContext[]
+            else#6 
+
+            # Literal 
+            result = remaining_string[].match(/\A\[(Literal):/) # find [A: stuff ] or [xA: stuff ]
+            if result #7
+                dput "i think i found an atomic group" + result[0]
+                regex_string += "(?:"
+                char_reader_index += result[0].length
+                startLiteralContext[]
+            else#7
+
             # non-capture groups (assume everything else is a non-capture group)
             # FIXME, put a warning here for Capatalized-would-be named capture groups
             dput "found a non-capture group"
             regex_string += '(?:'
             char_reader_index += 1
             startGroupContext[]
+            end#7 Literal
+            end#6 atomic 
             end#5 named capture group
             end#4.1 Character Class
             end#4 looks
             end#3 Comment
             end#2 Recursive
             end#1 Backreference
-
-
-            
-            #end of function
-                $indent = $indent[4...$indent.length]
-                dput "Bracket end"
-        end#proc
+        end#Proc
 
         #no context
         noContext = Proc.new do
@@ -885,21 +834,37 @@ end#def:rebexToRegex
 
 # add a replace method 
 class String
-    def replace(regex,with:nil)
+    def replaceAll(regex,with:nil)
+        # get rid of regex escapes
+            # \1 groups
+            # the \k<> groups 
+            # \' 
+            # \&
+        with.gsub!(/(\\\\)*\\(k|'|&|[0-9])/,"\\1\\\\\\\\\\2")
+        # add rebex escapes
+        with.gsub!(/(?:(?:\\\\)+|(?<!\\))\[G:([a-z0-9_]+?)\]/,"\\\\k<\\1>")
         self.gsub(regex,with)
     end
-    def replace!(regex,with:nil)
+    def replaceAll!(regex,with:nil)
+        # get rid of regex escapes
+            # \1 groups
+            # the \k<> groups 
+            # \' 
+            # \&
+        with.gsub!(/(\\\\)*\\(k|'|&|[0-9])/,"\\1\\\\\\\\\\2")
+        # add rebex escapes
+        with.gsub!(/(?:(?:\\\\)+|(?<!\\))\[G:([a-z0-9_]+?)\]/,"\\\\k<\\1>")
         self.gsub!(regex,with)
     end
-    def extract!(regex)
+    def extractFirst!(regex)
         output = self.match(regex)
-        self.gsub!(regex,"")
+        self.sub!(regex,"")
         return output
     end
-    def findfirst(regex)
+    def findFirst(regex)
         self.match(regex)
     end
-    def findeach(regex)
+    def findAll(regex)
         matches = []
         self.scan(regex){ matches << $~ }
         return matches
