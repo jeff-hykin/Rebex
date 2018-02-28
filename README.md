@@ -3,11 +3,8 @@ A more user friendly version of regular expressions, implemented in Ruby.
 (This is a feature inside of the Resh repo, but it had enough merit also have its own repo.)
 
 # Current State
-The expressions themselves and the stability is at version 0.9.<br>
-But integration and code structure are at the 0.3 level (should change soon).<br>
-The 1.0 version should be a refined Ruby function converting rebex into Regex.<br>
-I need to clean up the code and add good error messages before getting to the 1.0 version.<br>
-The 2.0 version should be a string find/replace/parse toolkit for Ruby.<br>
+Ready for everyday use, but it is possible there are a select few edge cases that have been missed.<br>
+I need to clean up the code and more imformative error messages before getting to the 1.0 version.<br>
 
 
 # How to use
@@ -40,6 +37,7 @@ The only special characters are:<br>
     []
     {}
     *
+    ~
     +
     :
     |
@@ -53,7 +51,7 @@ The rebex would have to be `"i have escaped characters \\ \[\] \{\}"`
 Rebex has a lot of escapes for matching special characters:
 ```
     \s # a space character
-    \w # a whitespace character, ex: "\t" or "\n"
+    \w # a whitespace character, ex: tab, "\t" or newline, "\n"
     \l # letter ex: "A" or "a" or "b"
     \v # character in a variable name (letters, underscores, numbers) 
     \x # a symbol (ex: #$&%*) 
@@ -65,13 +63,14 @@ Rebex has a lot of escapes for matching special characters:
 ## Special escapes
 Where Rebex stands out is the escapes for matching things longer than a character:
 ```
+    *  # Wildcard, everything accept newlines
     \# # Number              ex: "3.1415" or "10000" or ".05"
     \T # Time                ex: "10:20pm" or "22:17" or "12:10.59" or "10:11:80 Am" (and more)
     \D # Date                ex: "12/31/2017" or "12.31.2017" or "Aug 13, 2017" or "MAY-1-99" (and more)
     \W # Word                ex: "Bob" or "hello" or "PlzDontTypeLikDis"
     \V # a variable name     ex: "a_var" or "A_var1" but wont match: "1var"
-    \L # everything at the begining of a line (see explaination below)
-    \R # everything left on a lines (see explaination below)
+    \L # everything to the left  (example below)
+    \R # everything to the right (example below)
     And more to come!
         \f filenames
         \F folder names
@@ -83,14 +82,14 @@ Where Rebex stands out is the escapes for matching things longer than a characte
         im_a_file_name.txt
         im_a_ruby_script.rb
         i_have_.rb_in_my_name
-    the rebex "\L.rb" will match "im_a_ruby_script.rb" and "i_have_.rb"
+    the rebex [\L.rb] will match "im_a_ruby_script.rb" and "i_have_.rb"
     it simply matches from [start of the line] to [as many non-newline characters as possible]
     \R works the similarly but for the end
-    the rebex ".rb\R" would only match ".rb" (from "im_a_ruby_script.rb") and ".rb_in_my_name"
+    the rebex [.rb\R] would match both ".rb" (from "im_a_ruby_script.rb") and ".rb_in_my_name"
 ```
 
 ## Repetition
-Rebex uses + * and {} for repetition just like normal regular expressions
+Rebex uses + ~ and {} for repetition just like normal regular expressions
 ```
 hello world
 my name is jeff
@@ -98,14 +97,15 @@ my friends call me jeffffff
 i know someone named jennifer
 ```
 On the above string,
-The rebex `"jef+"` would match "jeff" and "jeffffff"<br>
-The rebex `"jef*"` would match "jeff", "jeffffff" but also "je" from "jennifer"<br>
-The rebex `"jef{3}"` would match "jefff" (three f's)<br>
-The rebex `"jef{0,3}"` would match "jeff" (2 f's work), "jefff" (3 f's) but also "je" from "jennifer" (0 f's)<br>
-The rebex `"je[\l+]"` (`\l` means any letter) would match "jeff", "jeffffff", and "jennifer"<br>
-The rebex `"je[\l+]f"` would match "jeff", "jeffffff" and "jennif" (because all are: je \[some letters] f)<br>
-The rebex `"je[\l+{Min}]f"` would match "jeff", "jeff" (from "jeffffff") and "jennif" <br>
+The rebex `[jef+]` would match "jeff" and "jeffffff"<br>
+The rebex `[jef~]` would match "jeff", "jeffffff" but also "je" from "jennifer"<br>
+The rebex `[jef{3}]` would match "jefff" (three f's)<br>
+The rebex `[jef{0,3}]` would match "jeff" (2 f's work), "jefff" (3 f's) but also "je" from "jennifer" (0 f's)<br>
+The rebex `[je[\l+]]` (`\l` means any letter) would match "jeff", "jeffffff", and "jennifer"<br>
+The rebex `[je[\l+]f]` would match "jeff", "jeffffff" and "jennif" (because all are: je \[some letters] f)<br>
+The rebex `[je[\l+{Min}]f]` would match "jeff", "jeff" (from "jeffffff") and "jennif" <br>
 (this because its: je \[as few letters as possible] f)<br>
+`{Min}` is just the minimum number that will still match. This is also known as being non-greedy.
 `{0,}` is the same as * <br>
 `{1,}` is the same as + <br>
 
@@ -136,12 +136,12 @@ The rebex `"je[\l+{Min}]f"` would match "jeff", "jeff" (from "jeffffff") and "je
         i know someone named jennifer
 
     [123]                   # matches "123", "123", and "123" but not "321"
-    [123 ]+                 # matches "123 123 123 " (all together)
+    [[123 ]+]               # matches "123 123 123 " (all together)
     123[this is a comment:] # matches the "123", "123", and "123" and ignores the comment 
     my [name|friends]       # matches both "my name" and "my friends"
     [<<:my name is ]jeff    # only matches "jeff" when "my name is " comes before it (called a lookbehind)
     jeff[x>:f]              # only matches "jeff" when there isn't an f after it (called a negative lookahead)
-    [Any:0-9]+              # matches "123", "123", and "123"
+    [Any:0-9]+              # matches "321", and "123"
     [xAny:0-9]+             # matches every thing thats not 0-9, "hello world\n" and "my name... etc
     [A:0-9]+                # same as [Any:0-9]+
     [xA:0-9]+               # same as [xAny:0-9]+
@@ -149,11 +149,13 @@ The rebex `"je[\l+{Min}]f"` would match "jeff", "jeff" (from "jeffffff") and "je
                             # for small things, named groups dont do much, but for long rebex patterns
                             # groups like "hour" "minute" "second" allow you to pull out specific peices
                             # and that can be really helpful
-    more groups on the way!
-        conditional groups
-        atomic groups
-        recursive groups
-        etc
+    there are also 
+        [Literal:]
+        [Fixed:]
+        and other groups with even more on the way:
+            conditional groups
+            recursive groups
+            etc
 ```
 
 
