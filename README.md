@@ -136,12 +136,12 @@ The rebex `[je[\l+{Min}]f]` would match "jeff", "jeff" (from "jeffffff") and "je
         i know someone named jennifer
 
     [123]                   # matches "123", "123", and "123" but not "321"
-    [123 ]+                 # matches "123 123 123 " (all together)
+    [[123 ]+]               # matches "123 123 123 " (all together)
     123[this is a comment:] # matches the "123", "123", and "123" and ignores the comment 
     my [name|friends]       # matches both "my name" and "my friends"
     [<<:my name is ]jeff    # only matches "jeff" when "my name is " comes before it (called a lookbehind)
     jeff[x>:f]              # only matches "jeff" when there isn't an f after it (called a negative lookahead)
-    [Any:0-9]+              # matches "123", "123", and "123"
+    [Any:0-9]+              # matches "321", and "123"
     [xAny:0-9]+             # matches every thing thats not 0-9, "hello world\n" and "my name... etc
     [A:0-9]+                # same as [Any:0-9]+
     [xA:0-9]+               # same as [xAny:0-9]+
@@ -149,11 +149,13 @@ The rebex `[je[\l+{Min}]f]` would match "jeff", "jeff" (from "jeffffff") and "je
                             # for small things, named groups dont do much, but for long rebex patterns
                             # groups like "hour" "minute" "second" allow you to pull out specific peices
                             # and that can be really helpful
-    more groups on the way!
-        conditional groups
-        atomic groups
-        recursive groups
-        etc
+    there are also 
+        [Literal:]
+        [Fixed:]
+        and other groups with even more on the way:
+            conditional groups
+            recursive groups
+            etc
 ```
 
 
