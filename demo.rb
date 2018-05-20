@@ -6,13 +6,17 @@ require File.dirname(__FILE__)+'/rebex.rb'
 #
 #  replaceAll
 #
-puts "I am a ...".replaceAll(  -/.../,  with:"string"  ) # outputs: I am a string
+puts "I am a ___, yup just a ___".replaceAll(  -/___/,  with:"string"  )
+# replaces each ___ with "string" and outputs: I am a string, yup just a string
+
 
 #
 #  findFirst
 #
 puts "What time is it?"
 puts "hello it is 23:00, 11:00pm".findFirst(-/[\T]/)     # finds Time: 23:00
+# the \T is a shortcut for finding a time, but shortcuts only work inside []'s
+# there are two times in the above string (23:00 and 11:00pm), but the .findFirst function only gets the first one
 
 #
 #  findAll
