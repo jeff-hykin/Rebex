@@ -13,14 +13,14 @@ Then this repo will be converted into a ruby gem. <br>
 2. Include `require File.dirname(__FILE__)+'/rebex.rb'` at the top of your script.
 3. Wherever you would normally write a regular expression, just include a - right before the //
 For example:
-```
+```ruby
 require File.dirname(__FILE__)+'/rebex.rb'
 a_string = "hello good sir, today is Dec 12, 1972 and it is 8:00 am"
 puts a_string.match(-/[\T]/) # will find the time: 8:00 am
 ```
 Some additional functions have also been added to the string class
 (See the demo file for more examples)
-```
+```ruby
 puts "The times also are:"
 # the following finds both 23:00 and 8:00am
 for each_match in "hello it is 23:00, 8:00am".findeach(-/\T/)
