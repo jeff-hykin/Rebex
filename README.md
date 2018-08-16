@@ -123,7 +123,7 @@ The rebex `[je[\l+{Min}]f]` would match "jeff", "jeff" (from "jeffffff") and "je
     {b}  # matches a boundary 
            (either [whitespace][HERE][non_whitespace] or [non_whitespace][HERE][whitespace])
     {c}  # matches a contiuation 
-           (either [whitespace][HERE][more_whitespace] or [non_whitespace][HERE][more_non_whitespace])
+           (either [whitespace][HERE][whitespace] or [non_whitespace][HERE][non_whitespace])
     more to come!
         {l} letter boundaries
         {#} number boundaries
