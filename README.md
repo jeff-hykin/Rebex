@@ -4,7 +4,8 @@ A more user friendly version of regular expressions, implemented in Ruby.
 
 # Current State
 Ready for everyday use, but it is possible there are a select few edge cases that have been missed.<br>
-I need to clean up the code and more imformative error messages before getting to the 1.0 version.<br>
+I need to clean up the code and more informative error messages before getting to the 1.0 version.<br>
+Then this repo will be converted into a ruby gem. <br>
 
 
 # How to use
