@@ -63,14 +63,14 @@ Rebex has a lot of escapes for matching special characters:
 ## Special escapes
 Where Rebex stands out is the escapes for matching things longer than a character:
 ```
-    *  # Wildcard, everything accept newlines
-    \# # Number              ex: "3.1415" or "10000" or ".05"
-    \T # Time                ex: "10:20pm" or "22:17" or "12:10.59" or "10:11:80 Am" (and more)
-    \D # Date                ex: "12/31/2017" or "12.31.2017" or "Aug 13, 2017" or "MAY-1-99" (and more)
-    \W # Word                ex: "Bob" or "hello" or "PlzDontTypeLikDis"
-    \V # a variable name     ex: "a_var" or "A_var1" but wont match: "1var"
-    \L # everything to the left  (example below)
-    \R # everything to the right (example below)
+    *    Wildcard, everything accept newlines
+    \#   Number              ex: "3.1415" or "10000" or ".05"
+    \T   Time                ex: "10:20pm" or "22:17" or "12:10.59" or "10:11:80 Am" (and more)
+    \D   Date                ex: "12/31/2017" or "12.31.2017" or "Aug 13, 2017" or "MAY-1-99" (and more)
+    \W   Word                ex: "Bob" or "hello" or "PlzDontTypeLikDis"
+    \V   a variable name     ex: "a_var" or "A_var1" but wont match: "1var"
+    \L   everything to the left  (example below)
+    \R   everything to the right (example below)
     And more to come!
         \f filenames
         \F folder names
@@ -79,13 +79,18 @@ Where Rebex stands out is the escapes for matching things longer than a characte
 
     # explaination for \L and \R
     if you have a string with mutiple lines like:
+    """    
         im_a_file_name.txt
         im_a_ruby_script.rb
         i_have_.rb_in_my_name
-    the rebex [\L.rb] will match "im_a_ruby_script.rb" and "i_have_.rb"
-    it simply matches from [start of the line] to [as many non-newline characters as possible]
-    \R works the similarly but for the end
-    the rebex [.rb\R] would match both ".rb" (from "im_a_ruby_script.rb") and ".rb_in_my_name"
+    """
+    
+    searching that string with the rebex-pattern "[\L.rb]" will return 2 matches: 
+        "im_a_ruby_script.rb" and "i_have_.rb"
+    \L simply matches from *start_of_the_line* to *as_many_non-newline_characters_as_possible*
+    \R works the similarly but at the end rather than the start
+    searching that string with the rebex-pattern "[.rb\R]" would return 2 matches:
+        ".rb_in_my_name" and ".rb" (the ".rb" is from "im_a_ruby_script.rb")
 ```
 
 ## Repetition
