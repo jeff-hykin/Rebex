@@ -16,18 +16,19 @@ For example:
 ```ruby
 require File.dirname(__FILE__)+'/rebex.rb'
 a_string = "hello good sir, today is Dec 12, 1972 and it is 8:00 am"
-puts a_string.match(-/[\T]/) # will find the time: 8:00 am
+puts a_string.match( /hello/) # a normal regular expression
+puts a_string.match(-/hello/) # a rebex expression
 ```
 Some additional functions have also been added to the string class
 (See the demo file for more examples)
 ```ruby
-puts "The times also are:"
-# the following finds both 23:00 and 8:00am
-for each_match in "hello it is 23:00, 8:00am".findeach(-/\T/)
-    puts "    the hour is:" + each_match["Hour"]
-    puts "    the minute is:" + each_match["Minute"]
-    puts ""
+for each_match in ( "hello hello hello".findeach(-/hello/) )
+    puts each_match[0]
 end
+# outputs:
+#    hello
+#    hello
+#    hello
 ```
 
 
