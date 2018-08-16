@@ -22,7 +22,7 @@ puts a_string.match(-/hello/) # a rebex expression
 Some additional functions have also been added to the string class
 (See the demo file for more examples)
 ```ruby
-for each_match in ( "hello hello hello".findeach(-/hello/) )
+for each_match in ( "hello hello hello".findAll(-/hello/) )
     puts each_match[0]
 end
 # outputs:
